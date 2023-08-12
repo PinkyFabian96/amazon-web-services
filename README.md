@@ -24,7 +24,7 @@
 
 ## Description
 
-Proyect [Nest](https://github.com/nestjs/nest) api services amazon-web-services.
+Project [Nest](https://github.com/nestjs/nest) api services amazon-web-services.
 
 ## Available
 1. APIS
