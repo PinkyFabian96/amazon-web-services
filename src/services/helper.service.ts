@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { readFile } from 'fs';
 import { Dictionary } from '../amazon-services/constants/dictionary';
 
 @Injectable()
 export class HelperService {
+    private readonly logger = new Logger( HelperService.name );
     public async readImage(imagePath) {    
         return new Promise((resolve, reject) => {
             readFile(imagePath, (err, data) => {
@@ -56,9 +57,9 @@ export class HelperService {
             //     labelDetectionNormalize = labelDetectionNormalize.replaceAll(" ", separator ).toLowerCase();
             // }
             labelDetectionNormalize = labelDetectionNormalize.toLowerCase();
-            console.log("labelDetectionNormalize",labelDetectionNormalize)
+            this.logger.debug("labelDetectionNormalize",labelDetectionNormalize)
             Dictionary.DATA_LABEL_INDEX_DICTIONARY.forEach( dictionary => {
-                if( labelDetectionNormalize != null && labelDetectionNormalize.includes( dictionary) ) {
+                if( labelDetectionNormalize != null && labelDetectionNormalize.startsWith( dictionary ) ) {
                     if( Dictionary.DATA_LABEL_REPLACE_DICTIONARY.hasOwnProperty(dictionary) )
                         labelDetectionNormalize = Dictionary.DATA_LABEL_REPLACE_DICTIONARY[dictionary];
 

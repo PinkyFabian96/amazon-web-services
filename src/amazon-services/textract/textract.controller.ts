@@ -18,8 +18,18 @@ export class TextractController {
     //   filename: fileNamer,
     // })
   }) )
-  async analyzeDocument(@UploadedFiles() files:Array<Express.Multer.File> ):Promise<Array<any>> {
-    console.log("entro dentro de uploadImage")
+  async analyzeDocument(@UploadedFiles() files:Array<Express.Multer.File> = [], @Body() fileBody:Array<any>|any ):Promise<Array<any>> {
+    if( Array.isArray( fileBody) ) {
+      const fileArray = fileBody.map( fileb =>  { return  { ...fileb, ...this.textractService.convertDataNumberToFileBuffer( fileb.buffer.data) } });
+      console.log( "fileArray", fileArray );
+      files = fileArray;
+    }
+      
+    if( typeof fileBody == 'object' && fileBody.buffer.data.length > 0 ) {
+      let file:any = this.textractService.convertDataNumberToFileBuffer( fileBody.buffer.data );
+      file = { ...fileBody, ...file };
+      files.push( file )
+    }
     if ( !files || files.length == 0 ) { 
       throw new BadRequestException('Make sure that the file is an image');
     }

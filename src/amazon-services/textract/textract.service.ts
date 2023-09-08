@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { HelperService } from '../../services/helper.service';
 import { AWSError, Textract } from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
@@ -6,6 +6,7 @@ import { PromiseResult } from 'aws-sdk/lib/request';
 
 @Injectable()
 export class TextractService {
+  private readonly logger = new Logger( TextractService.name );
 
   constructor( private readonly _helperService:HelperService, private readonly _configService:ConfigService ) {}
 
@@ -27,8 +28,23 @@ export class TextractService {
           },
           // FeatureTypes: ['FORMS'],
         };
+        // const params = {
+        //   Document: {
+        //     "S3Object": {
+        //       "Bucket": "aws-modulsoft-ohio", 
+        //       "Name": "factura.pdf"
+        //     }
+        //   },
+          
+        //   HumanLoopConfig:{
+        //     "FlowDefinitionArn":"arn:aws:sagemaker:us-east-2:975980620475:flow-definition/mercurio-revision-2",
+        //     "HumanLoopName":"mercurio-revision-2"
+        //  },
+        //   FeatureTypes: ['FORMS'],
+        // };
         // Ejecuta la solicitud a Textract
         const response = await textract.analyzeExpense(params).promise();
+        // const response = await textract.analyzeDocument(params).promise();
         let keyMap = this.processTextractResponse( response );
         textractList.push( keyMap );
       }
@@ -46,7 +62,7 @@ export class TextractService {
       textractResponse.ExpenseDocuments.forEach(doc => {
         doc.SummaryFields.forEach( ( summaryField, index ) => {
             if( summaryField.ValueDetection && summaryField.ValueDetection.Text.trim() !== null ) {
-                console.log( summaryField )
+                // console.log( summaryField )
                 let valueDetection = summaryField.ValueDetection.Text.trim();
 
                 let type = summaryField.Type?.Text;
@@ -83,7 +99,7 @@ export class TextractService {
       });
       return keyValueMap;
     } catch (error) {
-      console.log( error );
+      this.logger.error( error );
     }
   }
 
@@ -99,6 +115,16 @@ export class TextractService {
     }
 
     return;
+  }
+
+  public convertDataNumberToFileBuffer( data:Array<number> ) {
+    try {
+
+      return { buffer: Buffer.from( data ) };
+
+    } catch (error) {
+      
+    }
   }
 
 }
